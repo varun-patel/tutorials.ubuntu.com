@@ -1,6 +1,6 @@
 --
 id: tutorial-vpn-server
-summary: Learn how to install and configure an OpenVPN server. this is for more advanced users comfortable with the command line.
+summary: Learn how to install and configure an OpenVPN server and create client configurations. This tutorial covers some more advanced topics like networking and encryption, some background is helpful.
 categories: server
 tags: VPN, OpenVPN, , server, guide, tutorial
 difficulty: 4
@@ -22,7 +22,7 @@ Over the course of this tutorial, we will install dependencies for OpenVPN, inst
 ###What you'll learn
 
 * How to prepare your environment for the installation of OpenVPN
-* How to install OpenBPN through apt
+* How to install OpenVPN through apt
 * How to create and use encryption certificates
 * How to begin using the server end of OpenVPN
 
@@ -94,7 +94,7 @@ export KEY_NAME="vpn"
 ```
 Now you need to change the following
 * *COUNTRY_CODE* --> The two character code for the country you are in. i.e. The United Kingdon is GB, The United States of America is US and Canada is CA
-* *PROVINCE_CODE* --> The code for the province/state you are in. i.e. California is CA, New York is NY, Ontario is ON
+* *PROVINCE_CODE* --> The code for the province/state/region you are in. i.e. California is CA, New York is NY, Ontario is ON
 * *CITY_NAME* --> The name of the city you are in. i.e. London, New York, Tokyo, etc.
 * *ORGANISATION_NAME* --> The name of your organisation, for personal purposes, write your name.
 * *EMAIL* --> Put in your email.
@@ -115,7 +115,8 @@ export KEY_NAME="vpn"
 . . .
 ```
 
-now save and close the file using `ctrl`+`x` and pressing enter twice
+
+Now save and close the file using `ctrl`+`x` and pressing enter twice
 
 Now we are ready to build the certificate authority
 
@@ -147,8 +148,8 @@ We have now created a key, It is now time to create a couple more files begin wi
 ```bash
 ./build-dh
 ```
-this will take a while
-now the last step:
+This will take a while
+Now the last step:
 ```bash
 openvpn --genkey --secret keys/ta.key
 ```
@@ -198,7 +199,7 @@ tls-auth ta.key 0 # This file is secret
 key-direction 0
 
 ```
-right below, remove the `;` to uncomment the line `cipher AES-256-CBC`, below this add the line `auth SHA256`
+Right below, remove the `;` to uncomment the line `cipher AES-256-CBC`, below this add the line `auth SHA256`
 This section should now look like the following
 ```bash
 # Select a cryptographic cipher.
@@ -263,7 +264,7 @@ We need to add a little code for OpenVPN, add the following below the first sect
 COMMIT
 # END OPENVPN RULES
 ```
-now we need to tell ufw to forward packets, first open the file `/etc/default/ufw`
+Now we need to tell ufw to forward packets, first open the file `/etc/default/ufw`
 ```bash
 sudo nano /etc/default/ufw
 ```
@@ -393,3 +394,26 @@ Duration: 1:00
 You have finally finished the tutorial on how to create a vpn server.
 OpenVPN is a widely used vpn program, your connection can be trusted.
 Installing the .ovpn file you generated in the last step is explained in the client vpn installation tutorial.
+
+###You now know how to:
+* Prepare an environment to install a VPN Server using OpenVPN
+* Install OpenVPN and easy-rsa
+* Create encryption certificates using easy-rsa
+* Configure OpenVPN
+* Start the VPN service
+* Prepare an openvpn client configuration
+
+###What's Next?
+* Modify your external internet connection to forward port 1194
+* Ensure your network has a static IP address
+* Get a URL to easily send traffic to your server (optional)
+* Set up a client using the Install a VPN Client Tutorial on [Ubuntu Tutorials](https://tutorials.ubuntu.com)
+
+###I Need Help
+* Double Check that the port is available
+* Ensure the configuration files are correct
+* Make sure you typed the commands properly
+* Try using sudo (if you arent already)
+* Make sure the information you entered is the same throughout the installation
+* Try using [this script](https://github.com/Nyr/openvpn-install)
+* Ask a question on [Ask Ubuntu](https://askubuntu.com/questions/ask)
