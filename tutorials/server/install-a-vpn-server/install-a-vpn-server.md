@@ -4,9 +4,9 @@ summary: Learn how to install and configure an OpenVPN server and create client 
 categories: server
 tags: VPN, OpenVPN, , server, guide, tutorial
 difficulty: 4
-status: draft
-feedback-url: https://github.com/canonical-websites/tutorials.ubuntu.com/issues
+status: published
 published: 2017-12-07
+feedback-url: https://github.com/canonical-websites/tutorials.ubuntu.com/issues
 author: Varun Patel <varun-patel@live.com>
 
 ---
