@@ -185,7 +185,116 @@ Duration: 15:00
 
 We are now able to configure postfix to handle smtp connections.
 
+### Main Configuration
+
 First, we must edit the main configuation file:
 ```bash
 sudo nano /etc/postfix/main.cf
 ```
+Now find the line: `mydestination = example.com, hostname.example.com, localhost.example.com, localhost` and change it to `mydestination = localhost`
+
+We need to add the following lines as well:
+```bash
+myhostname = hostname.example.com
+# change these values ^^^
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+virtual_mailbox_domains = mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf
+virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
+virtual_alias_maps = mysql:/etc/postfix/mysql-virtual-alias-maps.cf
+```
+
+Lastly we can open port 587 to allow a secure connection:
+```bash
+sudo nano /etc/postfix/master.cf
+```
+And paste the following:
+```bash
+submission inet n       -       -       -       -       smtpd
+-o syslog_name=postfix/submission
+-o smtpd_tls_security_level=encrypt
+```
+
+We now need to create and edit the files we referenced in the last 3 lines
+
+### SQL Connection Configuration
+
+First up is the domains table connection:
+```bash
+sudo nano /etc/postfix/mysql-virutal-mailbox-domains.cf
+```
+We can add the following lines:
+```bash
+user = usermail
+password = mailpassword
+hosts = 127.0.0.1
+dbname = mailserver
+query = SELECT 1 FROM virtual_domains WHERE name='%s'
+```
+
+Next we edit the users table connection:
+```bash
+sudo nano /etc/postfix/mysql-virutal-mailbox-maps.cf
+```
+We can add the following lines:
+```bash
+user = usermail
+password = mailpassword
+hosts = 127.0.0.1
+dbname = mailserver
+query = SELECT 1 FROM virtual_users WHERE email='%s'
+```
+
+And finally we can edit the aliases table connection:
+```bash
+sudo nano /etc/postfix/mysql-virutal-alias-maps.cf
+```
+We can add the following lines:
+```bash
+user = usermail
+password = mailpassword
+hosts = 127.0.0.1
+dbname = mailserver
+query = SELECT 1 FROM virtual_aliases WHERE source='%s'
+```
+To finish this, we restart the postfix service: `sudo service postfix restart`
+
+## Configuring Dovecot
+Duration: 20:00
+
+### Main configuration
+We can begin by opening dovecot.conf in an editor:
+```bash
+sudo nano /etc/dovecot/dovecot.conf
+```
+Ensure the line `!include conf.d/*.conf` is present.
+Now find the line `!include_try /usr/share/dovecot/protocols.d/*.protocol`, immediately below this, add the following:
+```bash
+protocols = imap lmtp
+```
+If you would like to enable the pop3 protocol (if you choose to) it can be included here.
+
+Next we will edit the mail configuration file:
+```bash
+sudo nano /etc/dovecot/conf.d/10-mail.conf
+```
+Find the line for `mail_location` and set it to `maildir:/var/mail/vhosts/%d/%n`
+Next, find the line `mail_priveliged_group` and set it to `mail`
+
+### Permissions
+
+Now we are going to deal with permissions:
+First we need to make a folder for each domain registered in the mysql table.
+```bash
+sudo mkdir -p /var/mail/vhosts/yourdomain.tld
+sudo mkdir -p /var/mail/vhosts/hostname.yourdomain.tld
+sudo groupadd -g 5000 vmail 
+sudo useradd -g vmail -u 5000 vmail -d /var/mail
+sudo chown -R vmail:vmail /var/mail
+```
+
+Now we need to edit the authorisation files, begin with:
+```bash
+sudo nano /etc/dovecot/conf.d/10-auth.conf
+```
+Uncomment plaintext authentication and add the line `disable_plaintext_auth = yes` 
+Now modify the `auth_mechanisms` parameter to be `plain login`
