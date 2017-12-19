@@ -262,6 +262,7 @@ To finish this, we restart the postfix service: `sudo service postfix restart`
 Duration: 20:00
 
 ### Main configuration
+
 We can begin by opening dovecot.conf in an editor:
 ```bash
 sudo nano /etc/dovecot/dovecot.conf
@@ -280,14 +281,14 @@ sudo nano /etc/dovecot/conf.d/10-mail.conf
 Find the line for `mail_location` and set it to `maildir:/var/mail/vhosts/%d/%n`
 Next, find the line `mail_priveliged_group` and set it to `mail`
 
-### Permissions
+### Permissions and Authentication
 
 Now we are going to deal with permissions:
 First we need to make a folder for each domain registered in the mysql table.
 ```bash
 sudo mkdir -p /var/mail/vhosts/yourdomain.tld
 sudo mkdir -p /var/mail/vhosts/hostname.yourdomain.tld
-sudo groupadd -g 5000 vmail 
+sudo groupadd -g 5000 vmail
 sudo useradd -g vmail -u 5000 vmail -d /var/mail
 sudo chown -R vmail:vmail /var/mail
 ```
@@ -296,5 +297,126 @@ Now we need to edit the authorisation files, begin with:
 ```bash
 sudo nano /etc/dovecot/conf.d/10-auth.conf
 ```
-Uncomment plaintext authentication and add the line `disable_plaintext_auth = yes` 
+Uncomment plaintext authentication and add the line `disable_plaintext_auth = yes`
 Now modify the `auth_mechanisms` parameter to be `plain login`
+
+It is now time for us to ecit the sql auth files:
+```bash
+sudo nano /etc/dovecot/conf.d/auth-sql.conf.ext
+
+#enter the following
+
+passdb {
+  driver = sql
+  args = /etc/dovecot/dovecot-sql.conf.ext
+}
+userdb {
+  driver = static
+  args = uid=vmail gid=vmail home=/var/mail/vhosts/%d/%n
+}
+```
+Now we edit the file we just referenced:
+```bash
+sudo nano /etc/dovecot/dovecot-sql.conf.ext
+
+# uncomment and change the following lines
+
+driver = mysql
+connect = host=127.0.0.1 dbname=mailserver user=usermail password=mailpassword
+default_pass_scheme = SHA512-CRYPT
+password_query = SELECT email as user, password FROM virtual_users WHERE email='%u';
+```
+Now change the ownership of the dovecot folder:
+```bash
+sudo chown -R vmail:dovecot /etc/dovecot
+sudo chmod -R o-rwx /etc/dovecot
+```
+Finally we are at the last file `sudo nano /etc/dovecot/conf.d/10-master.conf`, modify the following:
+```bash
+##Uncomment inet_listener_imap and modify to port 0
+service imap-login {
+  inet_listener imap {
+    port = 0
+}
+
+#Create LMTP socket and this configurations
+service lmtp {
+   unix_listener /var/spool/postfix/private/dovecot-lmtp {
+	   mode = 0600
+	   user = postfix
+	   group = postfix
+   }
+  #inet_listener lmtp {
+    # Avoid making LMTP visible for the entire internet
+    #address =
+    #port =
+  #}
+}
+
+
+
+service auth {
+
+  unix_listener /var/spool/postfix/private/auth {
+  mode = 0666
+  user = postfix
+  group = postfix
+  }
+
+  unix_listener auth-userdb {
+  mode = 0600
+  user = vmail
+  #group =
+  }
+
+  #unix_listener /var/spool/postfix/private/auth {
+  # mode = 0666
+  #}
+
+  user = dovecot
+}
+
+
+service auth-worker {
+  # Auth worker process is run as root by default, so that it can access
+  # /etc/shadow. If this isn't necessary, the user should be changed to
+  # $default_internal_user.
+  user = vmail
+}
+```
+Now we restart Dovecot:
+```bash
+sudo service dovecot restart
+```
+
+## You're Done!
+Duration: 2:00
+
+We can now connect to this server using any common mail client using port 993 for imap, port 995 for pop3 and port 587 or 25 for smtp
+You may want to look into [spamassasin for mail filtering](https://tutorials.ubuntu.com/tutorial/install-spamassasin)
+
+###You now know how to:
+
+* Prepare an environment to install an email server
+* Install `mail-stack-delivery`
+* Create a MySQL Database for email
+* Configure Postfix
+* Configure Dovecot
+
+###What's Next?
+
+* Modify your external internet connection to forward ports 993, 995, 587 and 25
+* Ensure your network has a static IP address
+* Set up a spam filtering service like [spamassasin](https://tutorials.ubuntu.com/tutorial/install-spamassasin)
+* Set up email clients
+
+###I Need Help
+
+* Double Check that the port is available
+* Ensure the configuration files are correct
+* Make sure you typed the commands properly
+* Try using sudo (if you arent already)
+* Make sure the information you entered is the same throughout the installation
+* Check your dns for A and MX entries
+* Make sure the same passwords were used throughout
+* Ask a question on [Ask Ubuntu](https://askubuntu.com/questions/ask)
