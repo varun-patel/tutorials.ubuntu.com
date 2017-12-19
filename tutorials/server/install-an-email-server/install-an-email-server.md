@@ -11,8 +11,7 @@ author: Varun Patel <varun-patel@live.com>
 
 ---
 
-# Install A VPN Server Using Postfix and Dovecot
-
+# Install an email server using postfix and dovecot
 ## Overview
 Duration: 3:00
 
