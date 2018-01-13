@@ -392,7 +392,7 @@ sudo service dovecot restart
 Duration: 2:00
 
 We can now connect to this server using any common mail client using port 993 for imap, port 995 for pop3 and port 587 or 25 for smtp
-You may want to look into [spamassasin for mail filtering](https://tutorials.ubuntu.com/tutorial/install-spamassasin)
+You may want to look into [spamassassin for mail filtering](https://tutorials.ubuntu.com/tutorial/install-spamassassin)
 
 ###You now know how to:
 
@@ -406,7 +406,7 @@ You may want to look into [spamassasin for mail filtering](https://tutorials.ubu
 
 * Modify your external internet connection to forward ports 993, 995, 587 and 25
 * Ensure your network has a static IP address
-* Set up a spam filtering service like [spamassasin](https://tutorials.ubuntu.com/tutorial/install-spamassasin)
+* Set up a spam filtering service like [spamassassin](https://tutorials.ubuntu.com/tutorial/install-spamassassin)
 * Set up email clients
 
 ###I Need Help
