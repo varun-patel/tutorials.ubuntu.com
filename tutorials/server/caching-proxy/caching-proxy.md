@@ -1,8 +1,8 @@
 ---
 id: tutorial-caching-proxy
-summary: Learn how to set up a caching proxy server using squid in order to speed up LAN connections through a caching web system by eliminating delays related to retrieving information off the internet.
+summary: Run the Squid caching proxy server to speed up LAN and  connections through a caching web system by eliminating delays related to retrieving information off the internet.
 categories: server
-tags: tutorial, proxy, squid, cache, caching, guide, ip
+tags: tutorial, proxy, squid, cache, caching, guide, ip, gci, hidden
 difficulty: 3
 status: published
 feedback_url: https://github.com/canonical-websites/tutorials.ubuntu.com/issues
@@ -11,25 +11,25 @@ author: Varun Patel <varun-patel@live.com>
 
 ---
 
-# Install a caching proxy using squid
+# Install the Squid proxy and caching server
 
 ## Overview
 Duration: 2:00
 
-In this tutorial, we will go over how to install a caching proxy. Caching proxies are used to keep local caches of webpages so that there is a minimized wait time to access internet files. Caching proxies can be placed either on the router or separate from the router, in this tutorial, we will place it separate from the router as this is the most common use case.
+In this tutorial, we will cover how to install the [Squid][squid] caching and proxy server. Caching proxies, like Squid, store local copies of web pages and steer new requests to these, speeding up load times and reducing the burden on your internet connection. 
 
-### What You'll Learn:
+### Learn how to:
 
-* How to install squid
-* How to configure squid
-* How to connect to the proxy
+* Install and configure Squid
+* Connect to the proxy from a client
 
-### What You'll Need
+### Requirements
 
-* A computer running Ubuntu 16.04 Xenial Xerus or above
-* Updated apt package lists (you can do this in terminal using `sudo apt-get update`)
+Alongside a computer running Ubuntu 16.04 (Xenial) or later, you will need the following:
+
+* An updated *apt* package list (you can do this in the terminal using `sudo apt-get update`)
 * A basic understanding of how proxies and caching proxies work
-* To be comfortable using terminal
+* Basic knowledge of the command line
 * A stable internet connection
 * Local Area Network (LAN)
 
@@ -42,28 +42,31 @@ Survey
 - Intermediate
 - Proficient
 
-## Installing Squid
-Duration:1:00
+## Install Squid
+Duration: 1:00
 
-We will install squid using apt, there is only one package to install.
-This is very simple:
+Installing *Squid* is as simple as typing the following into a terminal:
+
 ```bash
 sudo apt-get install squid
 ```
 
-Thats It! You can continue to the next page to configure squid.
+That's It! Continue to the next page to learn how to configure Squid.
 
-## Configuring Squid
+## Configure Squid
 Duration: 5:00
 
-We now need to edit the squid configuration file, this is a very large file and I recommend deleting the file and pasting the following contents into it.
-We start by navigating to the directory containing the config file. It is found in `/etc/squid/squid.conf`
+We now need to edit the Squid configuration file. As the default file is large, we recommend moving this to a backup first and replacing it with our own configuration:
+
 ```bash
 cd /etc/squid
-sudo rm squid.conf
-sudo nano
+sudo mv squid.conf squid.conf_original
 ```
-Now paste the following then exit using `ctrl`+`x` and name the file `squid.conf`
+
+You can paste the following into an empty text file called *squid.conf* by first typing `sudo nano squid.conf`, pasting in the content, and using `ctrl`+`w` to save and exit the editor.
+
+Here's what *squid.conf* should look like:
+
 ```bash
 http_port 8888
 
@@ -111,58 +114,62 @@ refresh_pattern ^gopher:        1440    0%      1440
 refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
 refresh_pattern .               0       20%     4320
 ```
-If you're in the mood to hack a little, all the options are described on the [squid cache website](http://www.squid-cache.org/Versions/v4/cfgman/index.html#toc_acl) and can be changed to fit your needs.
+If you're in the mood to hack a little, all the options are described on the [Squid cache website][squid-cache] and can be changed to fit your needs.
 
-## Setting up a connection
+## Set up a connection
 Duration: 5:00
 
 positive
-: **Make sure that port 8888 is forwarded to your server if connecting using an external ip**
-This also applies to ufw settings as well:
-`sudo ufw allow 8888`
+: If you're connecting to your Squid server from an external network, make sure port *8888* is forwarded to the server and that the firewall allows connections to the port. You can do this with `sudo ufw allow 8888`.
+
+To connect to your Squid proxy, you need to edit the network configuration on the computer(s) you want to use the proxy.
 
 ### Ubuntu
 
-On Ubuntu 17.10 we can connect to the proxy in Settings --> Network --> Network Proxy and click the gear, we can fill in the following, replacing 192.168.0.23 with your own ip address
+On Ubuntu, open *Settings>Network>Network Proxy* and click the gear icon. Select *Manual* and enter the IP address of your Squid server.
 
 ![IMAGE](./images/ubuntu-proxy-settings.png)
 
 ### Windows
 
-On Windows 10 we can connect to the proxy in Settings --> Network and Internet --> Proxy --> Manual Proxy Setup, fill in the following, replacing 192.168.0.23 with your own ip address
+On Windows 10, proxy settings can be found by selecting *Settings>Network and Internet>Proxy>Manual Proxy Setup*. Enter the IP address of your Squid server and make sure 'Use a proxy server' is enabled.
 
 ![IMAGE](./images/windows-proxy-settings.PNG)
 
 ### iOS
 
-On iOS 11, proxies can be configured as seen below, be sure to replace 192.168.0.23 with your own ip address
+On iOS 11, proxies can be configured by selecting your network, selecting *Configure Proxy*, setting this to *Manual* and entering the IP address of your server. You also need to enter *8888* as the port.
 
 ![IMAGE](./images/ios-proxy-settings.gif)
-
-
 
 ## You're Done!
 Duration: 2:00
 
-We are now connecting to cached webpages over http and https through a squid caching proxy. The underlying program, squid, has many other features including filtering using acl, these can be found at the [squid cache website](http://www.squid-cache.org/Versions/v4/cfgman/index.html#toc_acl).
+Congratulations! When your machine now requests a page over either HTTP or HTTPS, you will be transparently served cached web pages from your proxy.
 
-###You now know how to:
+The underlying program, Squid, has many other features, including filtering using Access Control Lists (ACL). These are documented on the [Squid website][squid-cache].
+
+### You now know how to:
 
 * Prepare an environment to install a caching proxy
-* Install squid
-* Configure squid
+* Install and configure Squid
 
-###What's Next?
+### What's Next?
 
 * Modify your external internet connection to forward port 8888
 * Ensure your network has a static IP address
 * Set up a connection to your proxy on common distributions
 
-###I Need Help
+### I Need Help
 
-* Double Check that the port is available
+* Check that the port (8888) is available
 * Check your router's port forwarding configuration (external connection)
 * Ensure the configuration file is correct
 * Make sure you typed the commands properly
-* Try using sudo (if you aren't already) i.e. `sudo` + `command`
-* Ask a question on [Ask Ubuntu](https://askubuntu.com/questions/ask)
+* Try using *sudo* (if you aren't already) i.e. `sudo` + `command`
+* Ask a question on [Ask Ubuntu][ask-ubuntu]
+
+<!-- LINKS -->
+[squid]: http://www.squid-cache.org/
+[squid-cache]: http://www.squid-cache.org/Versions/v4/cfgman/index.html#toc_acl
+[ask-ubuntu]: https://askubuntu.com/questions/ask
