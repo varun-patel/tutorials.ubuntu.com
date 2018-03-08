@@ -28,6 +28,7 @@ In this tutorial, we will cover how to install the [Squid][squid] caching and pr
 Alongside a computer running Ubuntu 16.04 (Xenial) or later, you will need the following:
 
 * An updated *apt* package list (you can do this in the terminal using `sudo apt-get update`)
+* Squid installed with `sudo apt install squid`
 * A basic understanding of how proxies and caching proxies work
 * Basic knowledge of the command line
 * A stable internet connection
@@ -42,21 +43,10 @@ Survey
 - Intermediate
 - Proficient
 
-## Install Squid
-Duration: 1:00
-
-Installing *Squid* is as simple as typing the following into a terminal:
-
-```bash
-sudo apt-get install squid
-```
-
-That's It! Continue to the next page to learn how to configure Squid.
-
 ## Configure Squid
 Duration: 5:00
 
-We now need to edit the Squid configuration file. As the default file is large, we recommend moving this to a backup first and replacing it with our own configuration:
+With Squid installed, we now need to edit the Squid configuration file. As the default file is large, we recommend moving this to a backup first and replacing it with our own configuration:
 
 ```bash
 cd /etc/squid
